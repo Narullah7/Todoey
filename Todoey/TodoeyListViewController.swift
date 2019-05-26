@@ -10,7 +10,7 @@ import UIKit
 
 class TodoeyListViewController: UITableViewController {
 
-    let itemArray = ["a","b","c"]
+    var itemArray = ["a","b","c"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,6 +39,27 @@ class TodoeyListViewController: UITableViewController {
         }
         
         tableView.deselectRow(at: indexPath, animated: true);
+    }
+    
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField = UITextField();
+        
+        let alert = UIAlertController.init(title: "Add new Item", message: "", preferredStyle: .alert);
+        
+        let action = UIAlertAction.init(title: "Add item", style: .default) { (action) in
+            self.itemArray.append(textField.text!);
+            self.tableView.reloadData();
+        }
+        
+        alert.addTextField { (message) in
+            message.placeholder = "create new item";
+            textField = message;
+        }
+        
+        alert.addAction(action);
+        present(alert, animated: true, completion: nil);
     }
 }
 
