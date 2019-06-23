@@ -12,19 +12,13 @@ class TodoeyListViewController: UITableViewController {
 
     var itemArray = [Item]();
     
-    let userDefaults = UserDefaults.standard;
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist");
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        //print(dataFilePath);
         
-        let newItem = Item();
-        newItem.title = "Find Mike";
-
-        itemArray.append(newItem);
-        
-        if let items = userDefaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = items
-        }
+        loadItems();
 
     }
 
@@ -49,7 +43,7 @@ class TodoeyListViewController: UITableViewController {
         
         itemArray[indexPath.row].isDone = !itemArray[indexPath.row].isDone
         
-        tableView.reloadData();
+        self.saveItems();
         
         tableView.deselectRow(at: indexPath, animated: true);
     }
@@ -68,7 +62,7 @@ class TodoeyListViewController: UITableViewController {
             
             self.itemArray.append(newItem);
             
-            self.userDefaults.set(self.itemArray, forKey: "TodoListArray");
+            self.saveItems();
             
             self.tableView.reloadData();
         }
@@ -80,6 +74,31 @@ class TodoeyListViewController: UITableViewController {
         
         alert.addAction(action);
         present(alert, animated: true, completion: nil);
+    }
+    
+    func saveItems() {
+        
+        let encoder = PropertyListEncoder();
+        
+        do {
+            let data = try encoder.encode(self.itemArray)
+            try data.write(to: self.dataFilePath!);
+        } catch{
+            print("Error encoding plist file \(error)")
+        }
+        
+        self.tableView.reloadData();
+    }
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Error encoding itemArray, \(error)")
+            }
+        }
     }
 }
 
